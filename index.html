@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub 项目分析工具 - 发现开源力量</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+        <!-- 主容器 -->
+    <div class="main-container">
+        <!-- 背景效果 -->
+        <div class="gradient-bg"></div>
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="shape shape-4"></div>
+        </div>
+
+        <!-- 导航栏 -->
+        <nav class="main-nav">
+            <div class="container">
+                <div class="nav-content">
+                    <div class="nav-brand">
+                        <i class="fab fa-github"></i>
+                        <span>GitHub 分析工具</span>
+                    </div>
+                    <div class="nav-tabs">
+                        <button class="nav-tab active" data-tab="analyzer" onclick="switchTab('analyzer')">
+                            <i class="fas fa-chart-line"></i>
+                            <span>项目分析</span>
+                        </button>
+                        <button class="nav-tab" data-tab="recommender" onclick="switchTab('recommender')">
+                            <i class="fas fa-magic"></i>
+                            <span>智能推荐</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 项目分析页面 -->
+        <div class="tab-content active" id="analyzer-tab">
+            <!-- 头部区域 -->
+            <header class="hero-section">
+                <div class="container">
+                    <div class="hero-content">
+                        <div class="hero-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h1 class="hero-title">GitHub 项目分析工具</h1>
+                        <p class="hero-subtitle">探索开源项目，发现贡献者，了解开发生态</p>
+                        
+                        <!-- 搜索区域 -->
+                        <div class="search-hero">
+                            <div class="search-container">
+                                <div class="search-input-group">
+                                    <i class="fas fa-search search-icon"></i>
+                                    <input 
+                                        type="text" 
+                                        id="search-input" 
+                                        placeholder="输入 GitHub 项目库名称可获得关键贡献者信息"
+                                        autocomplete="off"
+                                    >
+                                    <div class="search-suggestions" id="search-suggestions"></div>
+                                </div>
+                                
+                                <div class="search-controls">
+                                    <div class="control-group">
+                                        <label for="contributor-limit">贡献者数量:</label>
+                                        <div class="input-with-prefix">
+                                            <span class="input-prefix">前</span>
+                                            <input 
+                                                type="number" 
+                                                id="contributor-limit" 
+                                                class="modern-input"
+                                                min="1"
+                                                max="100"
+                                                value="10"
+                                                placeholder="10"
+                                            >
+                                            <span class="input-suffix">名</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <button id="search-btn" class="search-button">
+                                        <span class="btn-text">开始分析</span>
+                                        <i class="fas fa-rocket"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 结果展示区域 -->
+            <main class="results-section" id="results-section" style="display: none;">
+                <div class="container">
+                    <!-- 项目信息卡片 -->
+                    <div class="project-card" id="project-info">
+                        <div class="project-header">
+                            <div class="project-avatar">
+                                <i class="fab fa-github"></i>
+                            </div>
+                            <div class="project-details">
+                                <h2 class="project-title" id="project-name">项目名称</h2>
+                                <p class="project-description" id="project-description">项目描述</p>
+                                <div class="project-stats">
+                                    <div class="stat-item">
+                                        <i class="fas fa-star"></i>
+                                        <span class="stat-value" id="project-stars">0</span>
+                                        <span class="stat-label">Stars</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <i class="fas fa-code-branch"></i>
+                                        <span class="stat-value" id="project-forks">0</span>
+                                        <span class="stat-label">Forks</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <i class="fas fa-code"></i>
+                                        <span class="stat-value" id="project-language">-</span>
+                                        <span class="stat-label">Language</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 贡献者排行榜 -->
+                    <div class="contributors-section">
+                        <div class="section-header">
+                            <h3 class="section-title">
+                                <i class="fas fa-trophy"></i>
+                                贡献者排行榜
+                            </h3>
+                            <div class="view-controls">
+                                <button class="view-btn active" data-view="grid">
+                                    <i class="fas fa-th"></i>
+                                    网格视图
+                                </button>
+                                <button class="view-btn" data-view="list">
+                                    <i class="fas fa-list"></i>
+                                    列表视图
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="contributors-grid" id="contributors-container">
+                            <!-- 贡献者卡片将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- 项目推荐页面 -->
+        <div class="tab-content" id="recommender-tab" style="display: none;">
+            <!-- 头部区域 -->
+            <header class="hero-section">
+                <div class="container">
+                    <div class="hero-content">
+                        <div class="hero-icon">
+                            <i class="fas fa-magic"></i>
+                        </div>
+                        <h1 class="hero-title">AI 项目推荐系统</h1>
+                        <p class="hero-subtitle">用自然语言描述需求，获得精准的GitHub项目推荐</p>
+                        
+                        <!-- 推荐搜索区域 -->
+                        <div class="search-hero">
+                            <div class="search-container">
+                                <div class="recommend-input-group">
+                                    <i class="fas fa-robot search-icon"></i>
+                                    <textarea 
+                                        id="recommend-input" 
+                                        placeholder="输入感兴趣的方向获得对应的github项目库；通过点击项目库可获得对应的关键贡献者信息"
+                                        rows="3"
+                                        maxlength="500"
+                                    ></textarea>
+                                    <div class="input-footer">
+                                        <span class="char-count" id="char-count">0/500</span>
+                                        <button id="recommend-btn" class="search-button">
+                                            <span class="btn-text">智能推荐</span>
+                                            <i class="fas fa-magic"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- 快速选项 -->
+                                <div class="quick-options">
+                                    <span class="quick-label">快速选择：</span>
+                                    <div class="quick-tags">
+                                        <button class="quick-tag" onclick="setQuickQuery('AI数字人')">Web开发框架</button>
+                                        <button class="quick-tag" onclick="setQuickQuery('数据可视化工具')">机器学习库</button>
+                                        <button class="quick-tag" onclick="setQuickQuery('情感分析')">移动应用开发</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 推荐结果区域 -->
+            <main class="recommendations-section" id="recommendations-section" style="display: none;">
+                <div class="container">
+                    <!-- 需求分析结果 -->
+                    <div class="analysis-card" id="analysis-info" style="display: none;">
+                        <div class="analysis-header">
+                            <div class="analysis-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div class="analysis-content">
+                                <h3>需求分析结果</h3>
+                                <div class="analysis-details">
+                                    <div class="analysis-summary" id="analysis-summary"></div>
+                                    <div class="analysis-keywords" id="analysis-keywords"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 推荐项目列表 -->
+                    <div class="recommendations-list" id="recommendations-container">
+                        <!-- 推荐项目将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- 加载动画 -->
+        <div class="loading-overlay" id="loading-overlay" style="display: none;">
+            <div class="loading-content">
+                <div class="loading-spinner">
+                    <div class="spinner-ring"></div>
+                    <div class="spinner-ring"></div>
+                    <div class="spinner-ring"></div>
+                </div>
+                <h3 class="loading-title">正在加载...</h3>
+            </div>
+        </div>
+    </div>
+
+        <!-- 错误提示 -->
+        <div class="error-modal" id="error-modal" style="display: none;">
+            <div class="error-content">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>出现错误</h3>
+                <p id="error-message">未知错误</p>
+                <button class="error-close-btn" onclick="closeError()">确定</button>
+            </div>
+        </div>
+
+        <!-- 成功提示 -->
+        <div class="success-toast" id="success-toast" style="display: none;">
+            <i class="fas fa-check-circle"></i>
+            <span id="success-message">操作成功！</span>
+        </div>
+    </div>
+
+    <!-- 底部信息 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p>&copy; 2024 GitHub 项目分析工具. 基于 MCP GitHub 集成</p>
+                <div class="footer-links">
+                    <a href="#" onclick="showAbout()">
+                        <i class="fas fa-info-circle"></i>
+                        关于
+                    </a>
+                    <a href="#" onclick="showHelp()">
+                        <i class="fas fa-question-circle"></i>
+                        帮助
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 关于模态框 -->
+    <div class="modal" id="about-modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>关于 GitHub 爬虫工具</h3>
+                <button class="modal-close" onclick="closeModal('about-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>这是一个基于 MCP GitHub 的项目分析工具，能够：</p>
+                <ul>
+                    <li>获取 GitHub 项目的详细信息</li>
+                    <li>分析项目贡献者排名</li>
+                    <li>展示贡献者的详细资料</li>
+                    <li>提供美观的可视化界面</li>
+                </ul>
+                <p>技术栈：FastAPI + MCP GitHub + 现代化前端</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 帮助模态框 -->
+    <div class="modal" id="help-modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>使用帮助</h3>
+                <button class="modal-close" onclick="closeModal('help-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h4>如何使用：</h4>
+                <ol>
+                    <li>在搜索框输入 GitHub 项目名称（格式：用户名/项目名）</li>
+                    <li>选择要显示的贡献者数量</li>
+                    <li>点击"开始分析"按钮</li>
+                    <li>等待数据分析完成，查看结果</li>
+                </ol>
+                <h4>示例项目：</h4>
+                <ul>
+                    <li>microsoft/vscode</li>
+                    <li>facebook/react</li>
+                    <li>vuejs/vue</li>
+                    <li>angular/angular</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

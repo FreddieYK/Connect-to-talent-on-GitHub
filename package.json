@@ -1,0 +1,24 @@
+{
+  "name": "github-analysis-tool",
+  "version": "1.0.0",
+  "description": "GitHub项目分析工具 - 发现开源力量",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python3 main.py",
+    "build": "echo 'Static site - no build needed'",
+    "start": "echo 'Static site deployed'"
+  },
+  "keywords": [
+    "github",
+    "analysis",
+    "open-source",
+    "contributors",
+    "ai-recommendations"
+  ],
+  "author": "GitHub Analysis Tool",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "your-repo-url"
+  }
+}
