@@ -1,6 +1,28 @@
 // 全局变量
 let currentSearchTimeout = null;
-let currentRequest = null;
+
+// 分离各页面的请求状态，避免相互干扰
+const requestStates = {
+    analyzer: {
+        currentRequest: null,
+        isLoading: false,
+        loadingStep: 0
+    },
+    recommender: {
+        currentRequest: null,
+        isLoading: false,
+        loadingTitle: '正在加载...'
+    }
+};
+
+// 获取当前活跃的标签页
+function getActiveTab() {
+    const activeTab = document.querySelector('.tab-content.active');
+    if (activeTab && activeTab.id === 'recommender-tab') {
+        return 'recommender';
+    }
+    return 'analyzer';
+}
 
 // API配置 - 支持多环境
 const API_BASE_URL = (() => {
@@ -51,29 +73,163 @@ const elements = {
 
 // 初始化
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('页面DOM加载完成，开始初始化...');
+    
+    // 检查关键元素是否存在
+    console.log('搜索按钮:', elements.searchBtn);
+    console.log('推荐按钮:', elements.recommendBtn);
+    console.log('搜索输入框:', elements.searchInput);
+    console.log('推荐输入框:', elements.recommendInput);
+    
+    // 移除了测试代码，避免弹窗干扰
+    
     initializeEventListeners();
     initializeAnimations();
     setupSearchSuggestions();
+    
+    console.log('初始化完成');
 });
+
+// 全局switchTab函数，供HTML onclick调用
+window.switchTab = function(tabName) {
+    console.log('切换到标签页:', tabName);
+    
+    // 在切换之前保存当前页面的状态
+    const currentTab = getActiveTab();
+    if (requestStates[currentTab] && requestStates[currentTab].isLoading) {
+        console.log(`保存 ${currentTab} 页面的加载状态`);
+    }
+    
+    // 隐藏所有Tab内容
+    const allTabContents = document.querySelectorAll('.tab-content');
+    allTabContents.forEach(content => {
+        content.classList.remove('active');
+        content.style.display = 'none';
+    });
+    
+    // 移除所有Tab按钮的激活状态
+    const allTabButtons = document.querySelectorAll('.nav-tab');
+    allTabButtons.forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // 显示目标Tab内容
+    const targetTab = document.getElementById(`${tabName}-tab`);
+    if (targetTab) {
+        targetTab.style.display = 'block';
+        targetTab.classList.add('active');
+    }
+    
+    // 激活对应的Tab按钮
+    const targetButton = document.querySelector(`[data-tab="${tabName}"]`);
+    if (targetButton) {
+        targetButton.classList.add('active');
+    }
+    
+    // 恢复目标页面的加载状态
+    const targetState = requestStates[tabName];
+    if (targetState && targetState.isLoading) {
+        console.log(`恢复 ${tabName} 页面的加载状态`);
+        // 确保加载状态正确显示
+        showLoadingForTab(tabName);
+    } else {
+        // 检查是否有其他页面在加载，如果没有则隐藏加载动画
+        const hasLoadingTabs = Object.values(requestStates).some(state => state.isLoading);
+        if (!hasLoadingTabs && elements.loadingOverlay) {
+            elements.loadingOverlay.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    }
+    
+    // 更新页面标题
+    if (tabName === 'analyzer') {
+        document.title = 'GitHub 项目分析工具 - 发现开源力量';
+    } else if (tabName === 'recommender') {
+        document.title = 'AI 项目推荐系统 - 智能推荐GitHub项目';
+    }
+};
+
+// 其他全局函数
+window.setQuickQuery = function(query) {
+    const recommendInput = document.getElementById('recommend-input');
+    if (recommendInput) {
+        recommendInput.value = query;
+        recommendInput.focus();
+        
+        // 触发input事件以更新字符计数
+        const event = new Event('input', { bubbles: true });
+        recommendInput.dispatchEvent(event);
+    }
+};
+
+window.closeError = function() {
+    const errorModal = document.getElementById('error-modal');
+    if (errorModal) {
+        errorModal.style.display = 'none';
+    }
+};
+
+window.showAbout = function() {
+    const aboutModal = document.getElementById('about-modal');
+    if (aboutModal) {
+        aboutModal.style.display = 'flex';
+    }
+};
+
+window.showHelp = function() {
+    const helpModal = document.getElementById('help-modal');
+    if (helpModal) {
+        helpModal.style.display = 'flex';
+    }
+};
+
+window.closeModal = function(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+    }
+};
 
     // 事件监听器初始化
 function initializeEventListeners() {
+    console.log('开始绑定事件监听器...');
+    
     // 搜索相关事件
     if (elements.searchInput) {
+        console.log('绑定搜索输入框事件');
         elements.searchInput.addEventListener('input', handleSearchInput);
         elements.searchInput.addEventListener('keypress', handleSearchKeypress);
+    } else {
+        console.warn('未找到搜索输入框元素');
     }
+    
     if (elements.searchBtn) {
-        elements.searchBtn.addEventListener('click', handleSearch);
+        console.log('绑定搜索按钮事件');
+        elements.searchBtn.addEventListener('click', function() {
+            console.log('搜索按钮被点击');
+            handleSearch();
+        });
+    } else {
+        console.warn('未找到搜索按钮元素');
     }
     
     // 推荐相关事件
     if (elements.recommendInput) {
+        console.log('绑定推荐输入框事件');
         elements.recommendInput.addEventListener('input', handleRecommendInput);
         elements.recommendInput.addEventListener('keypress', handleRecommendKeypress);
+    } else {
+        console.warn('未找到推荐输入框元素');
     }
+    
     if (elements.recommendBtn) {
-        elements.recommendBtn.addEventListener('click', handleRecommend);
+        console.log('绑定推荐按钮事件');
+        elements.recommendBtn.addEventListener('click', function() {
+            console.log('推荐按钮被点击');
+            handleRecommend();
+        });
+    } else {
+        console.warn('未找到推荐按钮元素');
     }
     
     // 贡献者数量输入框事件
@@ -305,16 +461,19 @@ async function handleSearch() {
     showLoading();
     
     try {
-        // 取消之前的请求
-        if (currentRequest) {
-            currentRequest.abort();
+        // 取消之前的请求（仅取消分析页面的请求）
+        const analyzerState = requestStates.analyzer;
+        if (analyzerState.currentRequest) {
+            analyzerState.currentRequest.abort();
         }
         
         // 创建新的请求控制器
         const controller = new AbortController();
-        currentRequest = controller;
+        analyzerState.currentRequest = controller;
+        analyzerState.isLoading = true;
         
         // 更新加载步骤
+        analyzerState.loadingStep = 0;
         updateLoadingStep(0);
         
         // 获取贡献者数据
@@ -323,6 +482,7 @@ async function handleSearch() {
         });
         
         updateLoadingStep(1);
+        analyzerState.loadingStep = 1;
         
         if (!response.ok) {
             const errorData = await response.json();
@@ -332,18 +492,37 @@ async function handleSearch() {
         const data = await response.json();
         
         updateLoadingStep(2);
+        analyzerState.loadingStep = 2;
         
         // 短暂延迟以显示完成状态
         setTimeout(() => {
-            hideLoading();
+            const analyzerState = requestStates.analyzer;
+            analyzerState.isLoading = false;
+            analyzerState.currentRequest = null;
+            
+            // 只有当前在分析页面时才隐藏加载动画
+            const currentTab = getActiveTab();
+            if (currentTab === 'analyzer') {
+                hideLoading();
+            }
+            
             displayResults(data);
             showSuccess('数据分析完成！');
         }, 500);
         
     } catch (error) {
-        hideLoading();
+        const analyzerState = requestStates.analyzer;
+        analyzerState.isLoading = false;
+        analyzerState.currentRequest = null;
+        
+        // 只有当前在分析页面时才隐藏加载动画
+        const currentTab = getActiveTab();
+        if (currentTab === 'analyzer') {
+            hideLoading();
+        }
         
         if (error.name === 'AbortError') {
+            console.log('分析请求被取消，但状态已保存');
             return; // 请求被取消，不显示错误
         }
         
@@ -364,8 +543,6 @@ async function handleSearch() {
         }
         
         showError(errorMessage);
-    } finally {
-        currentRequest = null;
     }
 }
 
@@ -852,16 +1029,51 @@ function updateLoadingStep(stepIndex) {
     });
 }
 
-// 显示加载动画
+// 显示加载动画（为特定标签页）
+function showLoadingForTab(tabName) {
+    const state = requestStates[tabName];
+    if (!state) return;
+    
+    // 标记页面为加载状态
+    state.isLoading = true;
+    
+    // 显示加载覆盖层
+    if (elements.loadingOverlay) {
+        elements.loadingOverlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+    
+    // 根据标签页设置正确的加载状态显示
+    if (tabName === 'recommender' && state.loadingTitle) {
+        updateLoadingTitle(state.loadingTitle);
+    } else if (tabName === 'analyzer' && state.loadingStep !== undefined) {
+        updateLoadingStep(state.loadingStep);
+    }
+}
+
+// 显示加载动画（兼容旧版本）
 function showLoading() {
-    elements.loadingOverlay.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+    const currentTab = getActiveTab();
+    showLoadingForTab(currentTab);
 }
 
 // 隐藏加载动画
 function hideLoading() {
-    elements.loadingOverlay.style.display = 'none';
-    document.body.style.overflow = 'auto';
+    // 只有当前活跃页面的加载状态为 false 时才隐藏加载动画
+    const currentTab = getActiveTab();
+    const currentState = requestStates[currentTab];
+    
+    if (currentState) {
+        currentState.isLoading = false;
+    }
+    
+    // 检查是否有其他页面仍在加载
+    const hasLoadingTabs = Object.values(requestStates).some(state => state.isLoading);
+    
+    if (!hasLoadingTabs && elements.loadingOverlay) {
+        elements.loadingOverlay.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
 }
 
 // 显示错误信息
@@ -1016,11 +1228,14 @@ document.addEventListener('keydown', function(e) {
 // 添加页面可见性变化处理
 document.addEventListener('visibilitychange', function() {
     if (document.hidden) {
-        // 页面不可见时取消正在进行的请求
-        if (currentRequest) {
-            currentRequest.abort();
-            currentRequest = null;
-        }
+        // 页面不可见时取消所有正在进行的请求
+        Object.values(requestStates).forEach(state => {
+            if (state.currentRequest) {
+                state.currentRequest.abort();
+                state.currentRequest = null;
+                state.isLoading = false;
+            }
+        });
     }
 });
 
@@ -1035,9 +1250,11 @@ window.addEventListener('unhandledrejection', function(e) {
 
 // 页面卸载时清理
 window.addEventListener('beforeunload', function() {
-    if (currentRequest) {
-        currentRequest.abort();
-    }
+    Object.values(requestStates).forEach(state => {
+        if (state.currentRequest) {
+            state.currentRequest.abort();
+        }
+    });
     
     if (currentSearchTimeout) {
         clearTimeout(currentSearchTimeout);
@@ -1100,42 +1317,7 @@ if ('serviceWorker' in navigator) {
 }
 
 // ====================== Tab切换功能 ======================
-
-// Tab切换函数
-function switchTab(tabName) {
-    // 隐藏所有Tab内容
-    const allTabContents = document.querySelectorAll('.tab-content');
-    allTabContents.forEach(content => {
-        content.classList.remove('active');
-        content.style.display = 'none';
-    });
-    
-    // 移除所有Tab按钮的激活状态
-    const allTabButtons = document.querySelectorAll('.nav-tab');
-    allTabButtons.forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    // 显示目标Tab内容
-    const targetTab = document.getElementById(`${tabName}-tab`);
-    if (targetTab) {
-        targetTab.style.display = 'block';
-        targetTab.classList.add('active');
-    }
-    
-    // 激活对应的Tab按钮
-    const targetButton = document.querySelector(`[data-tab="${tabName}"]`);
-    if (targetButton) {
-        targetButton.classList.add('active');
-    }
-    
-    // 更新页面标题
-    if (tabName === 'analyzer') {
-        document.title = 'GitHub 项目分析工具 - 发现开源力量';
-    } else if (tabName === 'recommender') {
-        document.title = 'AI 项目推荐系统 - 智能推荐GitHub项目';
-    }
-}
+// switchTab函数已在全局定义，供HTML onclick调用
 
 // ====================== 项目推荐功能 ======================
 
@@ -1212,14 +1394,17 @@ async function handleRecommend() {
     updateLoadingTitle('正在分析需求...');
     
     try {
-        // 取消之前的请求
-        if (currentRequest) {
-            currentRequest.abort();
+        // 取消之前的请求（仅取消推荐页面的请求）
+        const recommenderState = requestStates.recommender;
+        if (recommenderState.currentRequest) {
+            recommenderState.currentRequest.abort();
         }
         
         // 创建新的请求控制器
         const controller = new AbortController();
-        currentRequest = controller;
+        recommenderState.currentRequest = controller;
+        recommenderState.isLoading = true;
+        recommenderState.loadingTitle = '正在搜索匹配的项目...';
         
         updateLoadingTitle('正在搜索匹配的项目...');
         
@@ -1243,19 +1428,38 @@ async function handleRecommend() {
         
         const data = await response.json();
         
+        recommenderState.loadingTitle = '正在生成推荐结果...';
         updateLoadingTitle('正在生成推荐结果...');
         
         // 短暂延迟以显示完成状态
         setTimeout(() => {
-            hideLoading();
+            const recommenderState = requestStates.recommender;
+            recommenderState.isLoading = false;
+            recommenderState.currentRequest = null;
+            
+            // 只有当前在推荐页面时才隐藏加载动画
+            const currentTab = getActiveTab();
+            if (currentTab === 'recommender') {
+                hideLoading();
+            }
+            
             displayRecommendations(data);
             showSuccess('推荐生成完成！');
         }, 500);
         
     } catch (error) {
-        hideLoading();
+        const recommenderState = requestStates.recommender;
+        recommenderState.isLoading = false;
+        recommenderState.currentRequest = null;
+        
+        // 只有当前在推荐页面时才隐藏加载动画
+        const currentTab = getActiveTab();
+        if (currentTab === 'recommender') {
+            hideLoading();
+        }
         
         if (error.name === 'AbortError') {
+            console.log('推荐请求被取消，但状态已保存');
             return; // 请求被取消，不显示错误
         }
         
@@ -1272,8 +1476,6 @@ async function handleRecommend() {
         }
         
         showError(errorMessage);
-    } finally {
-        currentRequest = null;
     }
 }
 
@@ -1343,7 +1545,6 @@ function createRecommendationCard(project, rank) {
     
     // 处理描述文本，将\n\n转换为实际换行
     const formattedDescription = (project.description || '暂无描述')
-        .replace(/\\n\\n/g, '\n\n')
         .replace(/\n\n/g, '<br><br>')
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     

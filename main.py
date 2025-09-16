@@ -45,18 +45,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 静态文件路径（仅用于后端逻辑）
-static_path = Path(__file__).parent
+# 静态文件路径
+static_path = Path(__file__).parent / "static"
 
-# 提供HTML文件
+# 挂载静态文件
+app.mount("/static", StaticFiles(directory=static_path), name="static")
+
+# 提供前端页面
 @app.get("/")
 async def root():
-    return {
-        "message": "GitHub 项目推荐系统 API",
-        "version": "1.0.0",
-        "docs": "/docs",
-        "health": "/api/health"
-    }
+    from fastapi.responses import FileResponse
+    return FileResponse(static_path / "index.html")
 
 # 初始化爬虫
 crawler = GitHubCrawler()

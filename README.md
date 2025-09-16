@@ -1,30 +1,140 @@
-# Connect-to-talent-on-GitHub
+# GitHub 项目分析工具 - 双功能版本
 
-GitHub项目分析工具 - 智能推荐系统
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-brightgreen)](https://freddieyk.github.io/Connect-to-talent-on-GitHub/)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.8+-green.svg)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Latest-red.svg)](https://fastapi.tiangolo.com)
 
-## 功能特色
+一个现代化的GitHub项目分析和智能推荐工具，集成了项目贡献者分析和基于自然语言的项目推荐功能。
 
-- 🔍 **项目分析**：深度分析GitHub项目的技术栈、代码质量和发展趋势
-- 🤖 **智能推荐**：基于AI算法为开发者推荐合适的项目和学习路径
-- 🎨 **现代化界面**：响应式设计，支持多设备访问
-- ⚡ **实时数据**：实时获取GitHub最新项目信息
+## 🚀 新功能亮点
 
-## 技术架构
+### 1. 项目分析功能（原有功能增强）
+- ✅ 深度分析GitHub项目贡献者信息
+- ✅ 获取贡献者详细资料（关注者数量现已正常显示）
+- ✅ 支持多种联系方式和社交媒体链接提取
+- ✅ 美观的可视化界面和动画效果
+- ✅ 实时搜索建议和自动补全
 
-- **后端**：FastAPI + Python
-- **前端**：HTML5 + CSS3 + JavaScript
-- **AI集成**：智能分析算法
-- **部署**：Docker + Railway/Vercel支持
+### 2. 智能项目推荐功能（全新功能）
+- 🆕 基于自然语言描述获取GitHub项目推荐
+- 🆕 支持多种技术领域智能匹配
+- 🆕 AI驱动的需求分析和关键词提取
+- 🆕 精美的推荐结果展示
+- 🆕 快速选项和便捷操作
 
-## 使用方法
+## 📱 界面特性
 
-1. 启动后端服务：`python main.py`
-2. 启动前端服务：`python -m http.server 3000`
-3. 访问 http://localhost:3000 使用应用
+- **双Tab设计**：项目分析和智能推荐无缝切换
+- **现代化UI**：渐变背景、玻璃质感、流畅动画
+- **响应式设计**：适配不同屏幕尺寸
+- **暗色主题**：护眼且专业的视觉体验
 
-## 项目特点
+## 🛠️ 技术架构
 
-- 实时GitHub数据爬取
-- 智能项目推荐算法
-- 现代化用户界面
-- 支持多种部署方式
+### 前端技术
+- **HTML5** + **CSS3** + **JavaScript (ES6+)**
+- **CSS Grid** 和 **Flexbox** 布局
+- **CSS变量** 和 **自定义属性**
+- **Font Awesome** 图标库
+- **Google Fonts** (Inter字体)
+
+### 后端技术
+- **Python 3.8+**
+- **FastAPI** - 现代、快速的Web框架
+- **BeautifulSoup4** - HTML解析
+- **Requests** - HTTP请求库
+- **Uvicorn** - ASGI服务器
+
+## 🎯 使用方法
+
+### 快速启动（推荐）
+双击 `启动工具.bat` 文件，一键完成依赖安装、服务启动和浏览器打开。
+
+### 手动启动
+1. 安装依赖：`pip install -r requirements.txt`
+2. 启动后端：`python main.py`
+3. 启动前端：`python frontend_server.py`
+4. 访问：http://localhost:3000
+
+### 项目分析功能
+1. 在"项目分析"标签页输入GitHub项目名称（格式：`用户名/项目名`）
+2. 选择要显示的贡献者数量（1-100）
+3. 点击"开始分析"按钮
+4. 查看详细的项目信息和贡献者排行榜
+
+### 智能推荐功能
+1. 切换到"智能推荐"标签页
+2. 在文本框中用自然语言描述您的技术需求
+3. 可使用快速选项或自定义描述
+4. 点击"智能推荐"按钮获取匹配的项目
+
+## 📚 推荐示例
+
+以下是一些推荐查询的示例：
+
+- **数字人相关**："我需要开发数字人应用，包括人脸生成和语音合成功能"
+- **机器学习**："寻找Python机器学习框架，支持深度学习和GPU加速"
+- **Web开发**："需要现代化的Web开发框架，支持服务端渲染"
+- **移动开发**："跨平台移动应用开发框架推荐"
+- **数据可视化**："数据可视化和图表库推荐"
+
+## 🔌 API接口
+
+### 项目分析API
+```bash
+GET /api/contributors/{owner}/{repo}?limit=10
+```
+
+### 智能推荐API
+```bash
+POST /api/recommendations
+Content-Type: application/json
+
+{
+  "query": "您的需求描述",
+  "limit": 5
+}
+```
+
+### 健康检查API
+```bash
+GET /api/health
+```
+
+## 🚧 开发计划
+
+- [ ] 集成真实的AI推荐服务
+- [ ] 添加用户收藏和历史记录
+- [ ] 支持更多编程语言和技术栈
+- [ ] 添加项目对比功能
+- [ ] 移动端优化
+- [ ] 多语言国际化支持
+
+## 🤝 贡献指南
+
+欢迎提交Issue和Pull Request来改进这个项目！
+
+### 贡献流程
+1. Fork 本仓库
+2. 创建功能分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 创建 Pull Request
+
+### 问题反馈
+如果遇到问题，请在 [Issues](https://github.com/FreddieYK/Connect-to-talent-on-GitHub/issues) 页面提交。
+
+## 📄 开源协议
+
+本项目基于 [MIT License](LICENSE) 开源协议。
+
+## 👨‍💻 作者
+
+**FreddieYK** - [GitHub](https://github.com/FreddieYK)
+
+---
+
+**⭐ 如果这个项目对你有帮助，请给它一个星标！**
+
+**享受探索开源世界的乐趣！** 🌟

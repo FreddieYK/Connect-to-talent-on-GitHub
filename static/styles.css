@@ -150,7 +150,7 @@ body {
 
 /* 容器 */
 .container {
-    max-width: 1200px;
+    max-width: 2200px; /* 从1800px增加到2200px */
     margin: 0 auto;
     padding: 0 24px;
     position: relative;
@@ -159,16 +159,17 @@ body {
 
 /* 英雄区域 */
 .hero-section {
-    min-height: 70vh;
+    min-height: 80vh; /* 从70vh增加到80vh，提供更多空间 */
     display: flex;
-    align-items: center;
-    justify-content: center;
+    align-items: center; /* 垂直居中 */
+    justify-content: center; /* 水平居中 */
     position: relative;
+    padding: 40px 20px; /* 添加内边距保证可视性，增加左右边距 */
 }
 
 .hero-content {
     text-align: center;
-    max-width: 800px;
+    max-width: 1800px; /* 从1400px增加到1800px */
     margin: 0 auto;
 }
 
@@ -228,16 +229,24 @@ body {
     backdrop-filter: var(--blur-glass);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-lg);
-    padding: 60px 80px;
+    padding: 60px 120px; /* 恢复原有内边距 */
     box-shadow: var(--shadow-xl);
-    max-width: 2400px;
-    margin: 0 auto;
-    width: 95%;
+    max-width: 2000px; /* 恢复原有最大宽度 */
+    margin: 0 auto; /* 确保水平居中 */
+    width: 98%; /* 恢复原有宽度 */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 内部元素居中对齐 */
+    justify-content: center; /* 垂直居中 */
 }
 
 .search-input-group {
     position: relative;
     margin-bottom: 32px;
+    width: 100%; /* 确保占满容器宽度 */
+    max-width: 1200px; /* 限制最大宽度 */
+    margin-left: auto;
+    margin-right: auto; /* 居中 */
 }
 
 .search-icon {
@@ -1164,24 +1173,24 @@ body {
 /* 智能推荐页面特定样式 */
 .recommend-input-group {
     position: relative;
-    margin-bottom: 24px;
+    margin-bottom: 32px;
 }
 
 #recommend-input {
     width: 100%;
-    padding: 20px 24px 20px 54px;
+    padding: 24px 28px 24px 58px;
     border: 2px solid var(--border-color);
     border-radius: var(--border-radius);
     background: var(--bg-tertiary);
     color: var(--text-primary);
-    font-size: 1.05rem;
+    font-size: 1.15rem;
     font-weight: 500;
     line-height: 1.6;
     transition: all var(--transition-normal);
     outline: none;
     resize: vertical;
-    min-height: 140px;
-    max-height: 280px;
+    min-height: 200px;
+    max-height: 400px;
     font-family: inherit;
 }
 
