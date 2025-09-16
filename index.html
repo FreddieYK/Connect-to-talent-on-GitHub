@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub 项目分析工具 - 发现开源力量</title>
+    <title>GitHub 贡献者查询工具 - 发现开源力量</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -31,7 +31,7 @@
                     <div class="nav-tabs">
                         <button class="nav-tab active" data-tab="analyzer" onclick="switchTab('analyzer')">
                             <i class="fas fa-chart-line"></i>
-                            <span>项目分析</span>
+                            <span>Github项目贡献者查询</span>
                         </button>
                         <button class="nav-tab" data-tab="recommender" onclick="switchTab('recommender')">
                             <i class="fas fa-magic"></i>
@@ -51,7 +51,7 @@
                         <div class="hero-icon">
                             <i class="fas fa-chart-line"></i>
                         </div>
-                        <h1 class="hero-title">GitHub 项目分析工具</h1>
+                        <h1 class="hero-title">GitHub 贡献者查询工具</h1>
                         <p class="hero-subtitle">探索开源项目，发现贡献者，了解开发生态</p>
                         
                         <!-- 搜索区域 -->
@@ -62,7 +62,7 @@
                                     <input 
                                         type="text" 
                                         id="search-input" 
-                                        placeholder="输入 GitHub 项目库名称可获得关键贡献者信息"
+                                        placeholder="输入项目库名称或在下拉菜单中点击即可获得关键贡献者信息"
                                         autocomplete="off"
                                     >
                                     <div class="search-suggestions" id="search-suggestions"></div>
@@ -193,9 +193,9 @@
                                 <div class="quick-options">
                                     <span class="quick-label">快速选择：</span>
                                     <div class="quick-tags">
-                                        <button class="quick-tag" onclick="setQuickQuery('AI数字人')">Web开发框架</button>
-                                        <button class="quick-tag" onclick="setQuickQuery('数据可视化工具')">机器学习库</button>
-                                        <button class="quick-tag" onclick="setQuickQuery('情感分析')">移动应用开发</button>
+                                        <button class="quick-tag" onclick="setQuickQuery('')">AI数字人</button>
+                                        <button class="quick-tag" onclick="setQuickQuery('')">数据可视化工具</button>
+                                        <button class="quick-tag" onclick="setQuickQuery('')">情感分析</button>
                                     </div>
                                 </div>
                             </div>
@@ -265,7 +265,7 @@
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
-                <p>&copy; 2024 GitHub 项目分析工具. 基于 MCP GitHub 集成</p>
+                <p>&copy; 2025 GitHub 贡献者查询工具. 基于 MCP GitHub 集成</p>
                 <div class="footer-links">
                     <a href="#" onclick="showAbout()">
                         <i class="fas fa-info-circle"></i>
@@ -290,7 +290,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <p>这是一个基于 MCP GitHub 的项目分析工具，能够：</p>
+                <p>这是一个基于 MCP GitHub 的贡献者查询工具，能够：</p>
                 <ul>
                     <li>获取 GitHub 项目的详细信息</li>
                     <li>分析项目贡献者排名</li>
@@ -330,6 +330,6 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=local-1"></script>
 </body>
 </html>

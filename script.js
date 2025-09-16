@@ -253,15 +253,35 @@ async function handleSearch() {
         return;
     }
     
-    // 验证输入格式 (owner/repo)
+    // 支持仅输入“仓库名”的情况：自动通过建议接口补全 owner/repo
+    let owner = '';
+    let repo = '';
     if (!query.includes('/')) {
-        showError('请输入正确的格式：用户名/项目名 (例如: microsoft/vscode)');
-        return;
+        try {
+            const resolveResp = await fetch(`${API_BASE_URL}/api/suggestions?q=${encodeURIComponent(query)}&limit=1`);
+            if (resolveResp.ok) {
+                const resolveData = await resolveResp.json();
+                const best = (resolveData.suggestions || [])[0];
+                const full = best && (best.name || best.full_name);
+                if (full && full.includes('/')) {
+                    [owner, repo] = full.split('/');
+                } else {
+                    showError('未找到匹配的仓库，请输入更准确的名称');
+                    return;
+                }
+            } else {
+                showError('建议服务不可用，请稍后重试或输入 用户名/项目名');
+                return;
+            }
+        } catch (e) {
+            showError('网络错误：无法获取仓库建议');
+            return;
+        }
+    } else {
+        [owner, repo] = query.split('/');
     }
-    
-    const [owner, repo] = query.split('/');
     if (!owner || !repo) {
-        showError('请输入正确的格式：用户名/项目名');
+        showError('请输入正确的项目名称或 用户名/项目名');
         return;
     }
     
