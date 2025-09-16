@@ -26,9 +26,14 @@ function getActiveTab() {
 
 // API配置 - 支持多环境
 const API_BASE_URL = (() => {
-    // 生产环境：Vercel部署时使用相对路径
+    // 生产环境：优先使用Railway部署的后端
     if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-        return window.location.origin; // 使用当前域名，API路由会自动转发到后端
+        // 检查是否为Vercel部署
+        if (window.location.hostname.includes('vercel.app')) {
+            // Vercel环境，使用Railway后端或显示静态模式提示
+            return 'https://your-railway-backend.railway.app'; // 需要配置实际的Railway URL
+        }
+        return window.location.origin; // 其他生产环境
     }
     // 开发环境：优先同一IP的后端，fallback到localhost
     if (window.location.hostname === '127.0.0.1') {
@@ -1302,7 +1307,22 @@ window.addEventListener('load', async function() {
     const apiStatus = await checkApiStatus();
     if (!apiStatus) {
         console.error('API服务连接失败');
-        showWarning(`网络连接错误：无法连接到后端服务 (${API_BASE_URL})。请检查：\n1. 网络连接是否正常\n2. 后端服务是否运行\n3. API地址是否正确`);
+        
+        // 如果是Vercel环境，显示特定提示
+        if (window.location.hostname.includes('vercel.app')) {
+            showWarning(`欢迎体验静态演示版本！
+
+🌐 当前为 GitHub Pages / Vercel 静态部署
+🛠️ 要体验完整功能，请：
+
+1. 下载源代码到本地
+2. 双击“启动工具.bat”脚本
+3. 配置 DeepSeek API 密钥
+
+🔗 源代码： https://github.com/FreddieYK/Connect-to-talent-on-GitHub`);
+        } else {
+            showWarning(`网络连接错误：无法连接到后端服务 (${API_BASE_URL})。请检查：\n1. 网络连接是否正常\n2. 后端服务是否运行\n3. API地址是否正确`);
+        }
     } else {
         console.log('API服务连接成功');
     }
