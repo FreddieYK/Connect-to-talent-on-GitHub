@@ -64,7 +64,7 @@ crawler = GitHubCrawler()
 # DeepSeek API 配置 - 优先 .env，然后环境变量
 load_dotenv(override=False)
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "your_deepseek_api_key_here")
-DEEPSEEK_API_BASE = "https://api.deepseek.com/chat/completions"
+DEEPSEEK_API_BASE = "https://api.deepseek.com/v1/chat/completions"
 
 # MCP GitHub 配置 - 使用环境变量
 # 注意：默认不提供token，若未配置则使用匿名请求以避免401错误

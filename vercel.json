@@ -2,19 +2,31 @@
   "version": 2,
   "builds": [
     {
-      "src": "**/*",
+      "src": "api/index.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "static/**",
       "use": "@vercel/static"
     }
   ],
-  "rewrites": [
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/$1"
+      "src": "/api/(.*)",
+      "dest": "/api/index.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/static/$1"
     }
   ],
+  "env": {
+    "DEEPSEEK_API_KEY": "@deepseek_api_key",
+    "GITHUB_TOKEN": "@github_token"
+  },
   "headers": [
     {
-      "source": "/(.*)",
+      "source": "/api/(.*)",
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",

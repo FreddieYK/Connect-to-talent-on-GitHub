@@ -4,9 +4,9 @@ let currentRequest = null;
 
 // API配置 - 支持多环境
 const API_BASE_URL = (() => {
-    // 生产环境：使用环境变量或默认后端地址
+    // 生产环境：Vercel部署时使用相对路径
     if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-        return window.BACKEND_URL || 'https://fredd-backend-production.up.railway.app';
+        return window.location.origin; // 使用当前域名，API路由会自动转发到后端
     }
     // 开发环境：优先同一IP的后端，fallback到localhost
     if (window.location.hostname === '127.0.0.1') {
