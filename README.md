@@ -15,3 +15,16 @@ GitHub项目分析工具 - 智能推荐系统
 - **前端**：HTML5 + CSS3 + JavaScript
 - **AI集成**：智能分析算法
 - **部署**：Docker + Railway/Vercel支持
+
+## 使用方法
+
+1. 启动后端服务：`python main.py`
+2. 启动前端服务：`python -m http.server 3000`
+3. 访问 http://localhost:3000 使用应用
+
+## 项目特点
+
+- 实时GitHub数据爬取
+- 智能项目推荐算法
+- 现代化用户界面
+- 支持多种部署方式
