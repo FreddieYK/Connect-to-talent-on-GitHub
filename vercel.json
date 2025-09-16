@@ -10,14 +10,16 @@
       "use": "@vercel/static"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/index.py"
-    },
+      "source": "/api/(.*)",
+      "destination": "/api/index.py"
+    }
+  ],
+  "redirects": [
     {
-      "src": "/(.*)",
-      "dest": "/static/$1"
+      "source": "/",
+      "destination": "/static/index.html"
     }
   ],
   "env": {
