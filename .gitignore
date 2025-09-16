@@ -99,7 +99,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+# .env  # 注释掉，允许上传.env文件
 .venv
 env/
 venv/
@@ -166,7 +166,7 @@ pids
 *.temp
 
 # API Keys and secrets (重要！)
-.env
+# .env  # 注释掉，允许上传.env文件
 *.key
 *.pem
 config.json
