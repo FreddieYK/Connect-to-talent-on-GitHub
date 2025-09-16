@@ -22,10 +22,6 @@
       "destination": "/static/index.html"
     }
   ],
-  "env": {
-    "DEEPSEEK_API_KEY": "@deepseek_api_key",
-    "GITHUB_TOKEN": "@github_token"
-  },
   "headers": [
     {
       "source": "/api/(.*)",
