@@ -10,6 +10,7 @@ import asyncio
 import ssl
 import certifi
 import os
+from dotenv import load_dotenv
 from pathlib import Path
 
 from models import ContributorsResponse, UserProfile, Contributor, RepositoryInfo, SearchResult
@@ -33,8 +34,11 @@ app.add_middleware(
         "https://fredd-live.vercel.app",
         "https://*.vercel.app",
         "http://localhost:3000",
+        "http://127.0.0.1:3000",
         "http://localhost:8000",
-        "http://127.0.0.1:8000"
+        "http://127.0.0.1:8000",
+        "http://localhost:8080",
+        "http://127.0.0.1:8080"
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -57,9 +61,10 @@ async def root():
 # 初始化爬虫
 crawler = GitHubCrawler()
 
-# DeepSeek API 配置 - 使用环境变量
+# DeepSeek API 配置 - 优先 .env，然后环境变量
+load_dotenv(override=False)
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "your_deepseek_api_key_here")
-DEEPSEEK_API_BASE = "https://api.deepseek.com/v1/chat/completions"
+DEEPSEEK_API_BASE = "https://api.deepseek.com/chat/completions"
 
 # MCP GitHub 配置 - 使用环境变量
 # 注意：默认不提供token，若未配置则使用匿名请求以避免401错误
@@ -660,9 +665,27 @@ async def enrich_recommendations(recommendations: list) -> list:
             owner, repo = repo_name.split('/', 1)
             logger.info(f"处理推荐项目: {owner}/{repo}")
             
-            # 尝试获取项目详细信息
+            # 尝试获取项目详细信息（优先GitHub API，其次网页爬取）
             repo_info = await mcp_github.get_repository_with_mcp(owner, repo)
-            
+            # 如果API失败或返回的stars/forks为0，回退到爬虫抓取页面数据
+            if not repo_info or (isinstance(repo_info.get('stars', 0), int) and repo_info.get('stars', 0) == 0):
+                try:
+                    scraped = crawler.get_repository_info(owner, repo)
+                    if scraped and scraped.get('stars', 0) or scraped.get('forks', 0):
+                        repo_info = {
+                            'owner': scraped.get('owner', owner),
+                            'name': scraped.get('name', repo),
+                            'full_name': scraped.get('full_name', f"{owner}/{repo}"),
+                            'description': scraped.get('description'),
+                            'stars': scraped.get('stars', 0),
+                            'forks': scraped.get('forks', 0),
+                            'language': scraped.get('language'),
+                            'url': scraped.get('url', f'https://github.com/{owner}/{repo}')
+                        }
+                        logger.info(f"使用页面爬取补全仓库 {owner}/{repo} 的统计信息: {repo_info['stars']} stars")
+                except Exception as se:
+                    logger.warning(f"页面爬取仓库统计失败: {se}")
+
             if repo_info:
                 # 成功获取仓库信息
                 enriched_item = {

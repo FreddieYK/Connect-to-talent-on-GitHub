@@ -6,3 +6,4 @@ pydantic==2.5.0
 python-multipart==0.0.6
 aiohttp==3.9.1
 certifi==2023.11.17
+python-dotenv==1.0.1

@@ -159,7 +159,7 @@ body {
 
 /* 英雄区域 */
 .hero-section {
-    min-height: 100vh;
+    min-height: 70vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -213,14 +213,14 @@ body {
 .hero-subtitle {
     font-size: 1.25rem;
     color: var(--text-secondary);
-    margin-bottom: 48px;
+    margin-bottom: 24px;
     font-weight: 400;
     line-height: 1.6;
 }
 
 /* 搜索区域 */
 .search-hero {
-    margin-top: 48px;
+    margin-top: 24px;
 }
 
 .search-container {
@@ -228,10 +228,11 @@ body {
     backdrop-filter: var(--blur-glass);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-lg);
-    padding: 40px;
+    padding: 60px 80px;
     box-shadow: var(--shadow-xl);
-    max-width: 600px;
+    max-width: 2400px;
     margin: 0 auto;
+    width: 95%;
 }
 
 .search-input-group {
@@ -251,13 +252,13 @@ body {
 
 #search-input {
     width: 100%;
-    padding: 20px 24px 20px 60px;
+    padding: 24px 28px 24px 64px;
     border: 2px solid var(--border-color);
     border-radius: var(--border-radius);
     background: var(--bg-tertiary);
     color: var(--text-primary);
-    font-size: 1.1rem;
-    font-weight: 500;
+    font-size: 1.25rem;
+    font-weight: 600;
     transition: all var(--transition-normal);
     outline: none;
 }
@@ -561,7 +562,7 @@ body {
 
 /* 结果区域 */
 .results-section {
-    padding: 80px 0;
+    padding: 40px 0;
     animation: fadeInUp 0.8s ease-out;
 }
 
@@ -1168,19 +1169,19 @@ body {
 
 #recommend-input {
     width: 100%;
-    padding: 16px 20px 16px 50px;
+    padding: 20px 24px 20px 54px;
     border: 2px solid var(--border-color);
     border-radius: var(--border-radius);
     background: var(--bg-tertiary);
     color: var(--text-primary);
-    font-size: 0.95rem;
-    font-weight: 400;
-    line-height: 1.5;
+    font-size: 1.05rem;
+    font-weight: 500;
+    line-height: 1.6;
     transition: all var(--transition-normal);
     outline: none;
     resize: vertical;
-    min-height: 80px;
-    max-height: 150px;
+    min-height: 140px;
+    max-height: 280px;
     font-family: inherit;
 }
 
@@ -1346,7 +1347,7 @@ body {
 
 /* 推荐结果区域 */
 .recommendations-section {
-    padding: 20px 0;
+    padding: 8px 0 24px;
     animation: fadeInUp 0.8s ease-out;
 }
 
@@ -1919,8 +1920,11 @@ body {
         font-size: 3rem;
     }
     
+    /* 平板设备 */
     .search-container {
-        padding: 32px;
+        padding: 40px;
+        width: 98%;
+        max-width: 2200px;
     }
     
     .contributors-grid {
@@ -1942,7 +1946,9 @@ body {
     }
     
     .search-container {
-        padding: 24px;
+        padding: 32px;
+        width: 98%;
+        max-width: 2000px;
     }
     
     .search-controls {
@@ -2022,7 +2028,8 @@ body {
     }
     
     .search-container {
-        padding: 20px;
+        padding: 24px;
+        width: 98%;
     }
     
     #search-input {
