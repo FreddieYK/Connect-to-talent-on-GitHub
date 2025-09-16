@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # GitHub 项目分析工具 - 双功能版本
 
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-brightgreen)](https://freddieyk.github.io/Connect-to-talent-on-GitHub/)
@@ -137,4 +138,9 @@ GET /api/health
 
 **⭐ 如果这个项目对你有帮助，请给它一个星标！**
 
+# Connect-to-talent-on-GitHub
+>>>>>>> 39ec79b5fc144a283abb67649ea5effbbfa6ea9c
 **享受探索开源世界的乐趣！** 🌟
+=======
+# Connect-to-talent-on-GitHub
+>>>>>>> 39ec79b5fc144a283abb67649ea5effbbfa6ea9c
