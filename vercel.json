@@ -1,7 +1,4 @@
 {
-  "version": 2,
-  "functions": {},
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/static/index.html" }
-  ]
+  "cleanUrls": false,
+  "trailingSlash": false
 }

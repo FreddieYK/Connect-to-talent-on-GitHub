@@ -48,6 +48,64 @@
     --border-radius-lg: 24px;
 }
 
+/* API连接警告 */
+.api-warning {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(90deg, #dc2626, #ea580c);
+    color: white;
+    padding: 12px 20px;
+    z-index: 9999;
+    box-shadow: var(--shadow-md);
+    display: none;
+    animation: slideDown 0.3s ease-out;
+}
+
+.warning-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.warning-content i {
+    font-size: 16px;
+    color: #fef3c7;
+}
+
+.warning-content button {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.warning-content button:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+/* 当显示API警告时，给页面内容添加上边距 */
+body:has(.api-warning[style*="block"]) .main-container {
+    margin-top: 50px;
+}
+
 /* 基础样式 */
 html {
     scroll-behavior: smooth;

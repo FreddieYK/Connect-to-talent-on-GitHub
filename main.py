@@ -35,6 +35,8 @@ app.add_middleware(
         "https://*.vercel.app",
         "https://connect-to-talent-on-github.vercel.app",
         "https://github-talent-analyzer.vercel.app",
+        "https://your-project-name.vercel.app",  # 用户部署时的域名
+        "https://your-project-name-*.vercel.app",  # Vercel自动生成的预览域名
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "http://localhost:3001",

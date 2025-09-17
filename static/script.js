@@ -41,6 +41,83 @@ const API_BASE_URL = (() => {
 // 检查是否为静态演示模式
 const isStaticDemo = false;
 
+// API状态检测
+let apiStatus = {
+    isOnline: true,
+    lastCheck: null,
+    checkInterval: null
+};
+
+// 检测API连接状态
+async function checkApiConnection() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/health`, {
+            method: 'GET',
+            timeout: 10000
+        });
+        
+        if (response.ok) {
+            apiStatus.isOnline = true;
+            apiStatus.lastCheck = new Date();
+            console.log('✅ API连接正常');
+            hideApiWarning();
+            return true;
+        } else {
+            throw new Error(`API返回错误状态: ${response.status}`);
+        }
+    } catch (error) {
+        apiStatus.isOnline = false;
+        apiStatus.lastCheck = new Date();
+        console.warn('⚠️ API连接失败:', error.message);
+        showApiWarning();
+        return false;
+    }
+}
+
+// 显示API连接警告
+function showApiWarning() {
+    let warning = document.getElementById('api-warning');
+    if (!warning) {
+        warning = document.createElement('div');
+        warning.id = 'api-warning';
+        warning.className = 'api-warning';
+        warning.innerHTML = `
+            <div class="warning-content">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>后端API暂时不可用，部分功能可能受限</span>
+                <button onclick="retryApiConnection()">重试连接</button>
+            </div>
+        `;
+        document.body.insertBefore(warning, document.body.firstChild);
+    }
+    warning.style.display = 'block';
+}
+
+// 隐藏API连接警告
+function hideApiWarning() {
+    const warning = document.getElementById('api-warning');
+    if (warning) {
+        warning.style.display = 'none';
+    }
+}
+
+// 重试API连接
+window.retryApiConnection = async function() {
+    console.log('🔄 重试API连接...');
+    await checkApiConnection();
+};
+
+// 定期检测API状态
+function startApiMonitoring() {
+    // 立即检测一次
+    checkApiConnection();
+    
+    // 每30秒检测一次
+    apiStatus.checkInterval = setInterval(() => {
+        checkApiConnection();
+    }, 30000);
+}
+
 // DOM元素
 const elements = {
     // 分析页面元素
@@ -90,6 +167,9 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeEventListeners();
     initializeAnimations();
     setupSearchSuggestions();
+    
+    // 启动API监控
+    startApiMonitoring();
     
     console.log('初始化完成');
 });
