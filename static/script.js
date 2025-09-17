@@ -84,7 +84,10 @@ function showApiWarning() {
         warning.innerHTML = `
             <div class="warning-content">
                 <i class="fas fa-exclamation-triangle"></i>
-                <span>后端API暂时不可用，部分功能可能受限</span>
+                <div class="warning-text">
+                    <strong>后端API暂时不可用</strong>
+                    <p>网络连接错误：无法连接到后端服务 (https://connect-to-talent-on-github-production.up.railway.app)。请检查：1. 网络连接是否正常 2. 后端服务是否运行 3. API地址是否正确</p>
+                </div>
                 <button onclick="retryApiConnection()">重试连接</button>
             </div>
         `;
