@@ -30,23 +30,9 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://fredd-five.vercel.app",
-        "https://fredd-live.vercel.app", 
-        "https://*.vercel.app",
-        "https://connect-to-talent-on-github.vercel.app",
-        "https://github-talent-analyzer.vercel.app",
-        "https://your-project-name.vercel.app",  # 用户部署时的域名
-        "https://your-project-name-*.vercel.app",  # Vercel自动生成的预览域名
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:3001",
-        "http://127.0.0.1:3001",
-        "http://localhost:8000",
-        "http://127.0.0.1:8000",
-        "http://localhost:8080",
-        "http://127.0.0.1:8080"
+        "*"  # 允许所有域名，以解决Vercel部署的CORS问题
     ],
-    allow_credentials=True,
+    allow_credentials=False,  # 使用通配符时必须设为False
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
