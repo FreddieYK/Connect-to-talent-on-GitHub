@@ -747,7 +747,10 @@ function displayResults(data) {
 
 // 显示项目信息
 function displayProjectInfo(repository) {
-    elements.projectName.textContent = repository.full_name;
+    // 更新项目标题为可点击的链接
+    const projectNameElement = elements.projectName;
+    projectNameElement.innerHTML = `<a href="https://github.com/${repository.full_name}" target="_blank">${repository.full_name}</a>`;
+    
     elements.projectDescription.textContent = repository.description || '暂无描述';
     elements.projectStars.textContent = formatNumber(repository.stars);
     elements.projectForks.textContent = formatNumber(repository.forks);

@@ -647,7 +647,7 @@ body {
 
 /* 结果区域 */
 .results-section {
-    padding: 40px 0;
+    padding: 10px 0;  /* 从40px改为10px，减小空隙 */
     animation: fadeInUp 0.8s ease-out;
 }
 
@@ -668,8 +668,8 @@ body {
     backdrop-filter: var(--blur-glass);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-lg);
-    padding: 40px;
-    margin-bottom: 40px;
+    padding: 20px;  /* 从40px改为20px */
+    margin-bottom: 15px;  /* 从40px改为15px，减小卡片间距 */
     box-shadow: var(--shadow-xl);
     position: relative;
     overflow: hidden;
@@ -715,6 +715,19 @@ body {
     margin-bottom: 12px;
     color: var(--text-primary);
     line-height: 1.2;
+}
+
+/* 项目标题链接样式 */
+.project-title a {
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.3s ease;
+    cursor: pointer;
+}
+
+.project-title a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
 }
 
 .project-description {
@@ -769,7 +782,7 @@ body {
     background: var(--bg-glass);
     backdrop-filter: var(--blur-glass);
     border-radius: var(--border-radius-lg);
-    padding: 40px;
+    padding: 20px;  /* 从40px改为20px */
     box-shadow: var(--shadow-xl);
     border: 1px solid var(--border-color);
     position: relative;
