@@ -256,12 +256,7 @@ window.closeError = function() {
     }
 };
 
-window.showAbout = function() {
-    const aboutModal = document.getElementById('about-modal');
-    if (aboutModal) {
-        aboutModal.style.display = 'flex';
-    }
-};
+
 
 
 
@@ -1267,11 +1262,7 @@ function closeModal(modalId) {
     document.body.style.overflow = 'auto';
 }
 
-// 显示关于模态框
-function showAbout() {
-    document.getElementById('about-modal').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
+
 
 
 
