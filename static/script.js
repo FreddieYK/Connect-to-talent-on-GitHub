@@ -263,8 +263,9 @@ window.closeError = function() {
 window.closeModal = function(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
-        modal.style.display = 'none';
+        modal.remove();
     }
+    document.body.style.overflow = 'auto';
 };
 
     // 事件监听器初始化
@@ -979,6 +980,14 @@ function showContributorModal(profile) {
     
     // 禁止页面滚动
     document.body.style.overflow = 'hidden';
+    
+    // 添加点击背景关闭模态框的事件
+    const modal = document.getElementById('contributor-modal');
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeModal('contributor-modal');
+        }
+    });
     
     // 调试信息
     console.log('模态框已显示，应该在屏幕中央');
