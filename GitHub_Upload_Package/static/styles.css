@@ -48,6 +48,82 @@
     --border-radius-lg: 24px;
 }
 
+/* API连接警告 */
+.api-warning {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(90deg, #dc2626, #ea580c);
+    color: white;
+    padding: 12px 20px;
+    z-index: 9999;
+    box-shadow: var(--shadow-md);
+    display: none;
+    animation: slideDown 0.3s ease-out;
+}
+
+.warning-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.warning-text {
+    flex: 1;
+    text-align: left;
+}
+
+.warning-text strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 15px;
+}
+
+.warning-text p {
+    margin: 0;
+    font-size: 13px;
+    opacity: 0.9;
+    line-height: 1.4;
+}
+
+.warning-content i {
+    font-size: 16px;
+    color: #fef3c7;
+}
+
+.warning-content button {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.warning-content button:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+/* 当显示API警告时，给页面内容添加上边距 */
+body:has(.api-warning[style*="block"]) .main-container {
+    margin-top: 50px;
+}
+
 /* 基础样式 */
 html {
     scroll-behavior: smooth;
@@ -1766,112 +1842,6 @@ body {
 .success-toast i,
 .warning-toast i {
     font-size: 1.2rem;
-}
-
-.success-toast span,
-.warning-toast span {
-    font-weight: 600;
-    font-size: 1rem;
-}
-
-/* 模态框样式 */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-    backdrop-filter: blur(10px);
-}
-
-.modal-content {
-    background: var(--bg-card);
-    border-radius: var(--border-radius-lg);
-    max-width: 600px;
-    width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-xl);
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 24px 32px;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.modal-header h3 {
-    font-size: 1.4rem;
-    color: var(--text-primary);
-    font-weight: 700;
-}
-
-.modal-close {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    font-size: 1.3rem;
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 8px;
-    transition: all var(--transition-normal);
-}
-
-.modal-close:hover {
-    color: var(--text-primary);
-    background: var(--bg-secondary);
-}
-
-.modal-body {
-    padding: 32px;
-}
-
-.modal-body h4 {
-    color: var(--text-primary);
-    margin-bottom: 12px;
-    margin-top: 24px;
-    font-weight: 600;
-    font-size: 1.1rem;
-}
-
-.modal-body h4:first-child {
-    margin-top: 0;
-}
-
-.modal-body p {
-    color: var(--text-secondary);
-    line-height: 1.6;
-    margin-bottom: 16px;
-}
-
-.modal-body ul,
-.modal-body ol {
-    color: var(--text-secondary);
-    padding-left: 24px;
-    line-height: 1.6;
-}
-
-.modal-body li {
-    margin-bottom: 8px;
-}
-
-.modal-body a {
-    color: var(--primary-color);
-    text-decoration: none;
-    transition: color var(--transition-normal);
-}
-
-.modal-body a:hover {
-    color: var(--primary-light);
-    text-decoration: underline;
 }
 
 /* 底部样式 */

@@ -26,21 +26,100 @@ function getActiveTab() {
 
 // API配置 - 支持多环境
 const API_BASE_URL = (() => {
-    // 生产环境：优先使用Railway部署的后端
+    // 生产环境：连接到Railway后端
     if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-        // 检查是否为Vercel部署
-        if (window.location.hostname.includes('vercel.app')) {
-            // Vercel环境，使用Railway后端或显示静态模式提示
-            return 'https://your-railway-backend.railway.app'; // 需要配置实际的Railway URL
-        }
-        return window.location.origin; // 其他生产环境
+        console.log('检测到生产环境，连接Railway后端');
+        return 'https://connect-to-talent-on-github-production.up.railway.app'; // Railway部署的后端
     }
-    // 开发环境：优先同一IP的后端，fallback到localhost
+    // 开发环境：本地后端
     if (window.location.hostname === '127.0.0.1') {
         return 'http://127.0.0.1:8000';
     }
     return 'http://localhost:8000';
 })();
+
+// 检查是否为静态演示模式
+const isStaticDemo = false;
+
+// API状态检测
+let apiStatus = {
+    isOnline: true,
+    lastCheck: null,
+    checkInterval: null
+};
+
+// 检测API连接状态
+async function checkApiConnection() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/health`, {
+            method: 'GET',
+            timeout: 10000
+        });
+        
+        if (response.ok) {
+            apiStatus.isOnline = true;
+            apiStatus.lastCheck = new Date();
+            console.log('✅ API连接正常');
+            hideApiWarning();
+            return true;
+        } else {
+            throw new Error(`API返回错误状态: ${response.status}`);
+        }
+    } catch (error) {
+        apiStatus.isOnline = false;
+        apiStatus.lastCheck = new Date();
+        console.warn('⚠️ API连接失败:', error.message);
+        showApiWarning();
+        return false;
+    }
+}
+
+// 显示API连接警告
+function showApiWarning() {
+    let warning = document.getElementById('api-warning');
+    if (!warning) {
+        warning = document.createElement('div');
+        warning.id = 'api-warning';
+        warning.className = 'api-warning';
+        warning.innerHTML = `
+            <div class="warning-content">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="warning-text">
+                    <strong>后端API暂时不可用</strong>
+                    <p>网络连接错误：无法连接到后端服务 (https://connect-to-talent-on-github-production.up.railway.app)。请检查：1. 网络连接是否正常 2. 后端服务是否运行 3. API地址是否正确</p>
+                </div>
+                <button onclick="retryApiConnection()">重试连接</button>
+            </div>
+        `;
+        document.body.insertBefore(warning, document.body.firstChild);
+    }
+    warning.style.display = 'block';
+}
+
+// 隐藏API连接警告
+function hideApiWarning() {
+    const warning = document.getElementById('api-warning');
+    if (warning) {
+        warning.style.display = 'none';
+    }
+}
+
+// 重试API连接
+window.retryApiConnection = async function() {
+    console.log('🔄 重试API连接...');
+    await checkApiConnection();
+};
+
+// 定期检测API状态
+function startApiMonitoring() {
+    // 立即检测一次
+    checkApiConnection();
+    
+    // 每30秒检测一次
+    apiStatus.checkInterval = setInterval(() => {
+        checkApiConnection();
+    }, 30000);
+}
 
 // DOM元素
 const elements = {
@@ -91,6 +170,9 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeEventListeners();
     initializeAnimations();
     setupSearchSuggestions();
+    
+    // 启动API监控
+    startApiMonitoring();
     
     console.log('初始化完成');
 });
@@ -417,7 +499,13 @@ async function handleSearch() {
         return;
     }
     
-    // 支持仅输入“仓库名”的情况：自动通过建议接口补全 owner/repo
+    // 如果是静态演示模式，显示演示数据
+    if (isStaticDemo) {
+        showDemoResults(query);
+        return;
+    }
+    
+    // 支持仅输入"仓库名"的情况：自动通过建议接口补全 owner/repo
     let owner = '';
     let repo = '';
     if (!query.includes('/')) {
@@ -553,6 +641,13 @@ async function handleSearch() {
 
 // 获取搜索建议
 async function fetchSearchSuggestions(query) {
+    // 静态演示模式下显示预设建议
+    if (isStaticDemo) {
+        const demoSuggestions = getDemoSuggestions(query);
+        displaySearchSuggestions(demoSuggestions);
+        return;
+    }
+    
     try {
         const response = await fetch(`${API_BASE_URL}/api/suggestions?q=${encodeURIComponent(query)}&limit=5`);
         
@@ -802,7 +897,7 @@ async function openContributorProfile(username) {
 // 显示贡献者模态框
 function showContributorModal(profile) {
     const modalHtml = `
-        <div class="modal" id="contributor-modal" style="display: block;">
+        <div class="modal" id="contributor-modal">
             <div class="modal-content">
                 <div class="modal-header">
                     <h3>${escapeHtml(profile.name || profile.username)}</h3>
@@ -867,6 +962,11 @@ function showContributorModal(profile) {
     
     // 添加到页面
     document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // 显示模态框
+    const modal = document.getElementById('contributor-modal');
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
 }
 
 // 生成联系信息部分
@@ -1268,6 +1368,12 @@ window.addEventListener('beforeunload', function() {
 
 // 检查API连接状态
 async function checkApiStatus() {
+    // 静态演示模式不需要检查API
+    if (isStaticDemo) {
+        console.log('静态演示模式，跳过API连接检查');
+        return false;
+    }
+    
     try {
         // 创建带超时的fetch请求
         const controller = new AbortController();
@@ -1303,26 +1409,20 @@ async function checkApiStatus() {
 window.addEventListener('load', async function() {
     console.log('正在检查API连接状态...');
     console.log('API_BASE_URL:', API_BASE_URL);
+    console.log('静态演示模式:', isStaticDemo);
+    
+    if (isStaticDemo) {
+        // 静态演示模式的欢迎提示
+        setTimeout(() => {
+            showDemoWelcome();
+        }, 1000);
+        return;
+    }
     
     const apiStatus = await checkApiStatus();
     if (!apiStatus) {
         console.error('API服务连接失败');
-        
-        // 如果是Vercel环境，显示特定提示
-        if (window.location.hostname.includes('vercel.app')) {
-            showWarning(`欢迎体验静态演示版本！
-
-🌐 当前为 GitHub Pages / Vercel 静态部署
-🛠️ 要体验完整功能，请：
-
-1. 下载源代码到本地
-2. 双击“启动工具.bat”脚本
-3. 配置 DeepSeek API 密钥
-
-🔗 源代码： https://github.com/FreddieYK/Connect-to-talent-on-GitHub`);
-        } else {
-            showWarning(`网络连接错误：无法连接到后端服务 (${API_BASE_URL})。请检查：\n1. 网络连接是否正常\n2. 后端服务是否运行\n3. API地址是否正确`);
-        }
+        showWarning(`网络连接错误：无法连接到后端服务 (${API_BASE_URL})。请检查：\n1. 网络连接是否正常\n2. 后端服务是否运行\n3. API地址是否正确`);
     } else {
         console.log('API服务连接成功');
     }
@@ -1336,8 +1436,354 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// ====================== Tab切换功能 ======================
-// switchTab函数已在全局定义，供HTML onclick调用
+// ====================== 静态演示功能 ======================
+
+// 显示演示欢迎信息
+function showDemoWelcome() {
+    const welcomeHtml = `
+        <div class="demo-welcome-toast" style="
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            max-width: 350px;
+            z-index: 10000;
+            animation: slideInRight 0.5s ease-out;
+        ">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                <i class="fas fa-star" style="font-size: 24px; color: #ffd700;"></i>
+                <h3 style="margin: 0; font-size: 18px;">欢迎体验静态演示版！</h3>
+            </div>
+            <p style="margin: 0 0 10px 0; line-height: 1.5; font-size: 14px;">
+                🌐 当前为 GitHub Pages / Vercel 静态部署<br>
+                💡 您可以体验界面和基础功能<br>
+                🔧 完整功能需要本地部署后端服务
+            </p>
+            <div style="margin-top: 15px; text-align: center;">
+                <button onclick="closeDemoWelcome()" style="
+                    background: rgba(255,255,255,0.2);
+                    border: 1px solid rgba(255,255,255,0.3);
+                    color: white;
+                    padding: 8px 16px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 13px;
+                    margin-right: 10px;
+                ">知道了</button>
+                <button onclick="showFullInstructions()" style="
+                    background: rgba(255,255,255,0.9);
+                    border: none;
+                    color: #333;
+                    padding: 8px 16px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 13px;
+                    font-weight: 500;
+                ">查看完整部署教程</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', welcomeHtml);
+    
+    // 添加动画样式
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// 关闭演示欢迎提示
+function closeDemoWelcome() {
+    const welcome = document.querySelector('.demo-welcome-toast');
+    if (welcome) {
+        welcome.style.animation = 'slideInRight 0.3s ease-in reverse';
+        setTimeout(() => welcome.remove(), 300);
+    }
+}
+
+// 显示完整部署教程
+function showFullInstructions() {
+    closeDemoWelcome();
+    
+    const instructionsHtml = `
+        <div class="modal" id="instructions-modal" style="display: block;">
+            <div class="modal-content" style="max-width: 600px; max-height: 80vh; overflow-y: auto;">
+                <div class="modal-header">
+                    <h3><i class="fas fa-rocket"></i> 完整部署教程</h3>
+                    <button class="modal-close" onclick="closeModal('instructions-modal')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body" style="line-height: 1.6;">
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                        <h4 style="margin-top: 0; color: #28a745;"><i class="fas fa-info-circle"></i> 当前状态</h4>
+                        <p style="margin: 0;">您正在使用 <strong>静态演示版本</strong>，可以体验界面和基础交互，但无法连接到实际的GitHub API。</p>
+                    </div>
+                    
+                    <h4><i class="fas fa-download"></i> 1. 下载源代码</h4>
+                    <p>访问GitHub仓库下载完整源代码：</p>
+                    <div style="background: #f1f3f4; padding: 10px; border-radius: 4px; font-family: monospace; margin-bottom: 15px;">
+                        <a href="https://github.com/FreddieYK/Connect-to-talent-on-GitHub" target="_blank" style="color: #0366d6; text-decoration: none;">
+                            https://github.com/FreddieYK/Connect-to-talent-on-GitHub
+                        </a>
+                    </div>
+                    
+                    <h4><i class="fas fa-cog"></i> 2. 本地部署步骤</h4>
+                    <ol>
+                        <li>解压下载的源代码到本地目录</li>
+                        <li>双击运行 <code>启动工具.bat</code> 脚本</li>
+                        <li>按提示配置 DeepSeek API 密钥（用于AI推荐功能）</li>
+                        <li>在浏览器中访问 <code>http://localhost:8000</code></li>
+                    </ol>
+                    
+                    <h4><i class="fas fa-star"></i> 3. 完整功能特性</h4>
+                    <ul>
+                        <li><strong>GitHub项目分析</strong>：获取真实的项目贡献者数据</li>
+                        <li><strong>AI智能推荐</strong>：基于需求推荐匹配的开源项目</li>
+                        <li><strong>实时数据</strong>：连接GitHub API获取最新信息</li>
+                        <li><strong>用户详情</strong>：查看贡献者的详细GitHub档案</li>
+                    </ul>
+                    
+                    <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                        <h4 style="margin-top: 0; color: #0066cc;"><i class="fas fa-lightbulb"></i> 提示</h4>
+                        <p style="margin: 0;">如果您想将后端部署到云端（如Railway、Heroku等），可以解决当前的CORS和API连接问题，实现真正的在线版本。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', instructionsHtml);
+}
+
+// 获取演示建议数据
+function getDemoSuggestions(query) {
+    const demoProjects = [
+        {
+            name: 'microsoft/vscode',
+            full_name: 'microsoft/vscode',
+            description: '免费开源的代码编辑器，支持多种编程语言',
+            language: 'TypeScript',
+            stars: 162000
+        },
+        {
+            name: 'facebook/react',
+            full_name: 'facebook/react',
+            description: '用于构建用户界面的JavaScript库',
+            language: 'JavaScript',
+            stars: 225000
+        },
+        {
+            name: 'pytorch/pytorch',
+            full_name: 'pytorch/pytorch',
+            description: '开源机器学习框架，支持动态计算图',
+            language: 'Python',
+            stars: 82000
+        },
+        {
+            name: 'kubernetes/kubernetes',
+            full_name: 'kubernetes/kubernetes',
+            description: '容器编排平台，用于自动化部署和管理应用',
+            language: 'Go',
+            stars: 109000
+        },
+        {
+            name: 'nodejs/node',
+            full_name: 'nodejs/node',
+            description: '基于Chrome V8引擎的JavaScript运行环境',
+            language: 'JavaScript',
+            stars: 106000
+        }
+    ];
+    
+    // 根据查询内容过滤匹配的项目
+    const filtered = demoProjects.filter(project => 
+        project.name.toLowerCase().includes(query.toLowerCase()) ||
+        project.description.toLowerCase().includes(query.toLowerCase()) ||
+        project.language.toLowerCase().includes(query.toLowerCase())
+    );
+    
+    return filtered.length > 0 ? filtered.slice(0, 5) : demoProjects.slice(0, 5);
+}
+
+// 显示演示搜索结果
+function showDemoResults(query) {
+    showLoading();
+    updateLoadingStep(0);
+    
+    setTimeout(() => {
+        updateLoadingStep(1);
+        
+        setTimeout(() => {
+            updateLoadingStep(2);
+            
+            setTimeout(() => {
+                hideLoading();
+                
+                const demoData = {
+                    repository: {
+                        full_name: query.includes('/') ? query : `demo/${query}`,
+                        description: '这是一个演示项目，展示GitHub项目分析功能。实际部署时将显示真实的项目数据。',
+                        stars: 1234,
+                        forks: 567,
+                        language: 'JavaScript'
+                    },
+                    contributors: generateDemoContributors()
+                };
+                
+                displayResults(demoData);
+                showDemoDataNotice();
+            }, 500);
+        }, 800);
+    }, 1000);
+}
+
+// 生成演示贡献者数据
+function generateDemoContributors() {
+    const demoNames = [
+        'octocat', 'defunkt', 'pjhyett', 'wycats', 'ezmobius',
+        'ivey', 'evanphx', 'vanpelt', 'wayneeseguin', 'brynary'
+    ];
+    
+    return demoNames.map((name, index) => ({
+        username: name,
+        avatar_url: `https://github.com/${name}.png`,
+        contributions: Math.floor(Math.random() * 500) + 50,
+        profile_url: `https://github.com/${name}`
+    }));
+}
+
+// 显示演示推荐结果
+function showDemoRecommendations(query) {
+    showLoading();
+    updateLoadingTitle('正在分析需求...');
+    
+    setTimeout(() => {
+        updateLoadingTitle('正在搜索匹配的项目...');
+        
+        setTimeout(() => {
+            updateLoadingTitle('正在生成推荐结果...');
+            
+            setTimeout(() => {
+                hideLoading();
+                
+                const demoRecommendations = generateDemoRecommendations(query);
+                displayRecommendations({ recommendations: demoRecommendations });
+                showDemoDataNotice();
+            }, 500);
+        }, 1000);
+    }, 800);
+}
+
+// 生成演示推荐数据
+function generateDemoRecommendations(query) {
+    const templates = [
+        {
+            repository: 'microsoft/typescript',
+            name: 'TypeScript',
+            description: '基于您的需求 "**${query}**"，推荐这个强类型的JavaScript超集。\n\nTypeScript为JavaScript添加了静态类型检查，能够在开发阶段发现潜在错误，提高代码质量和开发效率。',
+            language: 'TypeScript',
+            stars: 99000,
+            forks: 13000
+        },
+        {
+            repository: 'facebook/react',
+            name: 'React',
+            description: '这是一个现代化的前端框架，非常适合您提到的需求。\n\n**主要特性：**\n- 组件化开发\n- 虚拟DOM技术\n- 丰富的生态系统',
+            language: 'JavaScript',
+            stars: 225000,
+            forks: 46000
+        },
+        {
+            repository: 'pytorch/pytorch',
+            name: 'PyTorch',
+            description: '针对您的技术栈需求，这个深度学习框架具有出色的灵活性。\n\n支持动态计算图，易于调试和实验，在学术界和工业界都有广泛应用。',
+            language: 'Python',
+            stars: 82000,
+            forks: 22000
+        }
+    ];
+    
+    return templates.map(template => ({
+        ...template,
+        description: template.description.replace('${query}', query)
+    }));
+}
+
+// 显示演示数据提示
+function showDemoDataNotice() {
+    setTimeout(() => {
+        const notice = document.createElement('div');
+        notice.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 193, 7, 0.95);
+            color: #856404;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 9999;
+            animation: slideInUp 0.5s ease-out;
+            backdrop-filter: blur(10px);
+        `;
+        notice.innerHTML = `
+            <i class="fas fa-info-circle" style="margin-right: 8px;"></i>
+            当前显示的是演示数据，真实部署后将获取实际GitHub数据
+        `;
+        
+        document.body.appendChild(notice);
+        
+        // 5秒后自动隐藏
+        setTimeout(() => {
+            notice.style.animation = 'slideInUp 0.3s ease-in reverse';
+            setTimeout(() => notice.remove(), 300);
+        }, 5000);
+        
+        // 添加动画样式
+        if (!document.querySelector('#demo-notice-styles')) {
+            const style = document.createElement('style');
+            style.id = 'demo-notice-styles';
+            style.textContent = `
+                @keyframes slideInUp {
+                    from {
+                        transform: translate(-50%, 100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translate(-50%, 0);
+                        opacity: 1;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }, 1000);
+}
+
+// 将关闭演示欢迎和显示完整说明设为全局函数
+window.closeDemoWelcome = closeDemoWelcome;
+window.showFullInstructions = showFullInstructions;
+
+// ====================== 演示功能结束 ======================
 
 // ====================== 项目推荐功能 ======================
 
@@ -1403,6 +1849,12 @@ async function handleRecommend() {
     
     if (!query) {
         showError('请描述您的技术需求');
+        return;
+    }
+    
+    // 如果是静态演示模式，显示演示数据
+    if (isStaticDemo) {
+        showDemoRecommendations(query);
         return;
     }
     
