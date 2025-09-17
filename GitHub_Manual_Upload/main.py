@@ -1,9 +1,9 @@
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from typing import Optional, Dict, List, Any
 import logging
 import requests
-from urllib.parse import quote
 import json
 import re
 import asyncio
@@ -26,15 +26,13 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# 配置 CORS - 添加Vercel域名
+# 配置 CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://fredd-five.vercel.app",
-        "https://fredd-live.vercel.app", 
+        "https://fredd-live.vercel.app",
         "https://*.vercel.app",
-        "https://connect-to-talent-on-github.vercel.app",
-        "https://github-talent-analyzer.vercel.app",
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "http://localhost:8000",
@@ -47,11 +45,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Railway部署不需要静态文件服务
+# 静态文件路径
+static_path = Path(__file__).parent / "static"
 
-# 健康检查端点（仅保留一个）
+# 挂载静态文件
+app.mount("/static", StaticFiles(directory=static_path), name="static")
 
-# 移除根路径的静态文件服务，Railway只提供API
+# 提供前端页面
+@app.get("/")
+async def root():
+    from fastapi.responses import FileResponse
+    return FileResponse(static_path / "index.html")
 
 # 初始化爬虫
 crawler = GitHubCrawler()
@@ -227,7 +231,7 @@ class MCPGitHubIntegration:
             
             def search_repo_by_name(query_name: str) -> Optional[Dict]:
                 """当owner/repo无效时，使用GitHub搜索API按名称检索最匹配仓库"""
-                search_url = f"{self.github_api_base}/search/repositories?q={quote(query_name)}&sort=stars&order=desc&per_page=1"
+                search_url = f"{self.github_api_base}/search/repositories?q={requests.utils.quote(query_name)}&sort=stars&order=desc&per_page=1"
                 logger.info(f"回退搜索仓库: {search_url}")
                 resp = requests.get(search_url, headers={k:v for k,v in self.headers.items() if k != 'Authorization' or MCP_GITHUB_TOKEN}, timeout=15)
                 if resp.status_code == 200:
@@ -602,7 +606,7 @@ def parse_ai_response(ai_response: str) -> dict:
         except json.JSONDecodeError:
             pass
         
-        # 如果直接解析失败，尝试解析``json```代码块
+        # 如果直接解析失败，尝试解析```json```代码块
         json_match = re.search(r'```json\s*({[\s\S]*?})\s*```', ai_response)
         if json_match:
             try:

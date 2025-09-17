@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+.env
+pip-log.txt
+pip-delete-this-directory.txt
+.DS_Store
+Thumbs.db
+*.log
+node_modules/
+GitHub_Manual_Upload/
+GitHub_Upload_Package/
