@@ -897,8 +897,32 @@ async function openContributorProfile(username) {
 // 显示贡献者模态框
 function showContributorModal(profile) {
     const modalHtml = `
-        <div class="modal" id="contributor-modal" style="display: block;">
-            <div class="modal-content">
+        <div class="modal" id="contributor-modal" style="
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: rgba(0, 0, 0, 0.8) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            z-index: 10000 !important;
+            backdrop-filter: blur(10px);
+        ">
+            <div class="modal-content" style="
+                background: #1e293b;
+                padding: 0;
+                border-radius: 24px;
+                max-width: 600px;
+                width: 90%;
+                max-height: 80vh;
+                overflow-y: auto;
+                border: 1px solid #334155;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+                position: relative;
+                margin: auto;
+            ">
                 <div class="modal-header">
                     <h3>${escapeHtml(profile.name || profile.username)}</h3>
                     <button class="modal-close" onclick="closeModal('contributor-modal')">
@@ -962,6 +986,12 @@ function showContributorModal(profile) {
     
     // 添加到页面
     document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // 禁止页面滚动
+    document.body.style.overflow = 'hidden';
+    
+    // 调试信息
+    console.log('模态框已显示，应该在屏幕中央');
 }
 
 // 生成联系信息部分
