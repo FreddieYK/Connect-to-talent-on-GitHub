@@ -263,12 +263,7 @@ window.showAbout = function() {
     }
 };
 
-window.showHelp = function() {
-    const helpModal = document.getElementById('help-modal');
-    if (helpModal) {
-        helpModal.style.display = 'flex';
-    }
-};
+
 
 window.closeModal = function(modalId) {
     const modal = document.getElementById(modalId);
@@ -1278,11 +1273,7 @@ function showAbout() {
     document.body.style.overflow = 'hidden';
 }
 
-// 显示帮助模态框
-function showHelp() {
-    document.getElementById('help-modal').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
+
 
 // 工具函数
 
@@ -1437,10 +1428,8 @@ window.addEventListener('load', async function() {
     console.log('静态演示模式:', isStaticDemo);
     
     if (isStaticDemo) {
-        // 静态演示模式的欢迎提示
-        setTimeout(() => {
-            showDemoWelcome();
-        }, 1000);
+        // 静态演示模式，不显示欢迎提示
+        console.log('静态演示模式，跳过欢迎提示');
         return;
     }
     
